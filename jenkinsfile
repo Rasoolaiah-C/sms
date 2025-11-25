@@ -35,38 +35,38 @@ pipeline {
                     }
                 }
             }
-    // stage('K8s Container Deployment') {
-    //   steps {
-    //     // Use the kubeconfig secret file saved in Jenkins credentials
-    //     withCredentials([file(credentialsId: 'kubeconfig-studentmarkservice', variable: 'KUBECONFIG_FILE')]) {
-    //       script {
-    //         // Render templates using Groovy (no envsubst)
-    //         def renderTemplate = { srcPath, destPath ->
-    //           def tpl = readFile(srcPath)
-    //           tpl = tpl.replace('${APP_NAME}', env.APP_NAME)
-    //                    .replace('${APP_NAMESPACE}', env.APP_NAMESPACE)
-    //                    .replace('${IMAGE_NAME}', env.IMAGE_NAME)
-    //                    .replace('${IMAGE_TAG}', env.IMAGE_TAG)
-    //                    .replace('${APP_PORT}', env.APP_PORT)
-    //                    .replace('${NODE_PORT}', env.NODE_PORT)
-    //                    .replace('${REPLICA_COUNT}', env.REPLICA_COUNT)
-    //           writeFile file: destPath, text: tpl
-    //           echo "Rendered ${destPath}"
-    //         }
+    stage('K8s Container Deployment') {
+      steps {
+        // Use the kubeconfig secret file saved in Jenkins credentials
+        withCredentials([file(credentialsId: 'kubeconfig-studentmarkservice', variable: 'KUBECONFIG_FILE')]) {
+          script {
+            // Render templates using Groovy (no envsubst)
+            def renderTemplate = { srcPath, destPath ->
+              def tpl = readFile(srcPath)
+              tpl = tpl.replace('${APP_NAME}', env.APP_NAME)
+                       .replace('${APP_NAMESPACE}', env.APP_NAMESPACE)
+                       .replace('${IMAGE_NAME}', env.IMAGE_NAME)
+                       .replace('${IMAGE_TAG}', env.IMAGE_TAG)
+                       .replace('${APP_PORT}', env.APP_PORT)
+                       .replace('${NODE_PORT}', env.NODE_PORT)
+                       .replace('${REPLICA_COUNT}', env.REPLICA_COUNT)
+              writeFile file: destPath, text: tpl
+              echo "Rendered ${destPath}"
+            }
 
-    //         renderTemplate('k8s/namespace-template.yaml', 'k8s/namespace.yaml')
-    //         renderTemplate('k8s/deployment-template.yaml', 'k8s/deployment.yaml')
-    //         renderTemplate('k8s/service-template.yaml', 'k8s/service.yaml')
+            renderTemplate('k8s/namespace-template.yaml', 'k8s/namespace.yaml')
+            renderTemplate('k8s/deployment-template.yaml', 'k8s/deployment.yaml')
+            renderTemplate('k8s/service-template.yaml', 'k8s/service.yaml')
 
-    //         // Apply manifests explicitly using the temporary kubeconfig file
-    //         // Note: on Windows agent 'kubectl' must be in PATH
-    //         bat "kubectl --kubeconfig=\"${KUBECONFIG_FILE}\" apply -f k8s/namespace.yaml --validate=false"
-    //         bat "kubectl --kubeconfig=\"${KUBECONFIG_FILE}\" apply -f k8s/deployment.yaml --validate=false"
-    //         bat "kubectl --kubeconfig=\"${KUBECONFIG_FILE}\" apply -f k8s/service.yaml --validate=false"
-    //       }
-    //     }
-    //   }
-    // }
+            // Apply manifests explicitly using the temporary kubeconfig file
+            // Note: on Windows agent 'kubectl' must be in PATH
+            bat "kubectl --kubeconfig=\"${KUBECONFIG_FILE}\" apply -f k8s/namespace.yaml --validate=false"
+            bat "kubectl --kubeconfig=\"${KUBECONFIG_FILE}\" apply -f k8s/deployment.yaml --validate=false"
+            bat "kubectl --kubeconfig=\"${KUBECONFIG_FILE}\" apply -f k8s/service.yaml --validate=false"
+          }
+        }
+      }
+    }
   }
 
   post {
